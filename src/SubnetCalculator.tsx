@@ -3,14 +3,14 @@ import { SubnetResult } from './SubnetResult';
 import { calculateSubnetsBySubnetCount, calculateSubnetsByHostCount } from './calculateSubnets';
 
 const SubnetCalculator: React.FC = () => {
-  const [networkAddress, setNetworkAddress] = useState<string>('');
-  const [prefix, setPrefix] = useState<string>('');
+  const [networkAddressWithPrefix, setNetworkAddressWithPrefix] = useState<string>('');
   const [desiredSubnets, setDesiredSubnets] = useState<number>(0);
   const [desiredHosts, setDesiredHosts] = useState<number>(0);
   const [subnets, setSubnets] = useState<SubnetResult[]>([]);
   const [calculationType, setCalculationType] = useState<'subnetCount' | 'hostCount'>('subnetCount');
 
   const calculate = () => {
+    const [networkAddress, prefix] = networkAddressWithPrefix.split('/');
     if (calculationType === 'subnetCount') {
       setSubnets(calculateSubnetsBySubnetCount(networkAddress, prefix, desiredSubnets));
     } else {
@@ -22,15 +22,9 @@ const SubnetCalculator: React.FC = () => {
     <div>
       <input
         type="text"
-        placeholder="네트워크 주소"
-        value={networkAddress}
-        onChange={(e) => setNetworkAddress(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Prefix"
-        value={prefix}
-        onChange={(e) => setPrefix(e.target.value)}
+        placeholder="네트워크 주소 (A.B.C.D /prefix)"
+        value={networkAddressWithPrefix}
+        onChange={(e) => setNetworkAddressWithPrefix(e.target.value)}
       />
       <div>
         <input
@@ -73,8 +67,7 @@ const SubnetCalculator: React.FC = () => {
           <h3>계산 결과:</h3>
           {subnets.map((subnet, index) => (
             <div key={index}>
-              <p>subnet {index}: </p>
-              <p>{subnet.networkAddress} /{subnet.prefixSize} {subnet.subnetMask} ({subnet.networkAddress}~{subnet.broadcastAddress})</p>
+              <p>subnet {index}: {subnet.networkAddress} /{subnet.prefixSize} {subnet.subnetMask} ({subnet.networkAddress}~{subnet.broadcastAddress})</p>
             </div>
           ))}
         </div>
