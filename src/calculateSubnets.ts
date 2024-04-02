@@ -28,13 +28,13 @@ const calculateSubnets = (networkAddress: string, prefix: string, desiredSubnets
   let subnetCount = Math.pow(2, Math.ceil(Math.log(desiredSubnets) / Math.log(2))); // 원하는 서브넷 개수를 2의 거듭제곱으로 조정
   let newPrefixSize = initialPrefixSize + Math.log2(subnetCount); // 새로운 프리픽스 크기 계산
   const subnets = [];
-
+  
   for (let i = 0; i < subnetCount; i++) {
     const offset = i * Math.pow(2, 32 - newPrefixSize);
     const subnetAddress = calculateSubnetAddress(ipParts, offset);
     const subnetMask = calculateSubnetMask(newPrefixSize);
     const broadcastAddress = calculateBroadcastAddress(subnetAddress, newPrefixSize);
-
+    
     subnets.push({
       networkAddress: subnetAddress.join('.'),
       prefixSize: newPrefixSize,
@@ -45,16 +45,13 @@ const calculateSubnets = (networkAddress: string, prefix: string, desiredSubnets
   return subnets;
 };
 
-
 export const calculateSubnetsBySubnetCount = (networkAddress: string, prefix: string, desiredSubnets: number): SubnetResult[] => {
   return calculateSubnets(networkAddress, prefix, desiredSubnets);
 };
 
 export const calculateSubnetsByHostCount = (networkAddress: string, prefix: string, desiredHosts: number): SubnetResult[] => {
-  // 호스트 개수에 따른 서브넷 개수 계산
   const maxHostsPerSubnet = Math.pow(2, 32 - parseInt(prefix, 10)) - 2;
-  let requiredSubnets = Math.ceil(desiredHosts / maxHostsPerSubnet);
-  requiredSubnets = Math.pow(2, Math.ceil(Math.log(requiredSubnets) / Math.log(2))); // 2의 거듭제곱으로 조정
-
+  const subtractPrefix = Math.ceil(maxHostsPerSubnet /desiredHosts);
+  const requiredSubnets = Math.pow(2, subtractPrefix);
   return calculateSubnets(networkAddress, prefix, requiredSubnets);
 };
